@@ -7,9 +7,8 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
-      } else {
-        return activeURL[1].replace("www.", "");
       }
+      return activeURL[1];
     }
   }
   function getElementFromForm(id) {
@@ -68,13 +67,14 @@
       display.innerHTML = sliderToValue(slider);
     };
     getStorage().then((storage2) => {
-      var _a, _b, _c;
+      var _a, _b, _c, _d;
       getElementFromForm("whitelistTime").value = storage2.whitelistTime;
       getElementFromForm("numIntentEntries").value = storage2.numIntentEntries;
       getElementFromForm("minIntentLength").value = (_a = storage2.minIntentLength, _a !== null && _a !== void 0 ? _a : 3);
       getElementFromForm("customMessage").value = storage2.customMessage || "";
       getElementFromForm("enableBlobs").checked = (_b = storage2.enableBlobs, _b !== null && _b !== void 0 ? _b : true);
       getElementFromForm("enable3D").checked = (_c = storage2.enable3D, _c !== null && _c !== void 0 ? _c : true);
+      getElementFromForm("checkIntent").checked = (_d = storage2.checkIntent, _d !== null && _d !== void 0 ? _d : true);
       getElementFromForm("thresholdSlider").value = storage2.predictionThreshold || 0.5;
       display.innerHTML = sliderToValue(slider);
     });
@@ -87,6 +87,7 @@
     const customMessage = getElementFromForm("customMessage").value;
     const enableBlobs = getElementFromForm("enableBlobs").checked;
     const enable3D = getElementFromForm("enable3D").checked;
+    const checkIntent = getElementFromForm("checkIntent").checked;
     const predictionThreshold = getElementFromForm("thresholdSlider").value;
     setStorage({
       numIntentEntries,
@@ -94,6 +95,7 @@
       customMessage,
       enableBlobs,
       enable3D,
+      checkIntent,
       predictionThreshold,
       minIntentLength
     }).then(() => {

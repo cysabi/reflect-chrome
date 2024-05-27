@@ -15,10 +15,7 @@ export function cleanDomain(urls, exact = false) {
         if (activeURL == null) {
             return '';
         }
-        else {
-            // strip www.
-            return activeURL[1].replace('www.', '');
-        }
+        return activeURL[1];
     }
 }
 export function insertAfter(newNode, existingNode) {

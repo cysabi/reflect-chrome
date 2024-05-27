@@ -104,9 +104,8 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
-      } else {
-        return activeURL[1].replace("www.", "");
       }
+      return activeURL[1];
     }
   }
   function insertAfter(newNode, existingNode) {
@@ -195,6 +194,16 @@
         </tr>
         <tr>
             <td>
+                <h3 class="setting">check intent.</h3>
+                <p class="subtext">whether to enable checking if your intention is productive or not.</p>
+            </td>
+            <td>
+                <input class='toggle' id='checkIntent' type='checkbox'>
+                <label class='toggle-button' for='checkIntent'></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <h3 class="setting">whitelist time.</h3>
                 <p class="subtext">time allowed on a website after successful intent (minutes).</p>
             </td>
@@ -213,10 +222,12 @@
     const whitelistTime = getElementFromForm("whitelistTime").value;
     const enableBlobs = getElementFromForm("enableBlobs").checked;
     const enable3D = getElementFromForm("enable3D").checked;
+    const checkIntent = getElementFromForm("checkIntent").checked;
     setStorage({
       whitelistTime,
       enableBlobs,
-      enable3D
+      enable3D,
+      checkIntent
     }).then(() => {
       const status = document.getElementById("statusContent");
       status.textContent = "options saved.";
@@ -228,10 +239,11 @@
   var onboarding_options_default = () => {
     document.addEventListener("DOMContentLoaded", () => {
       getStorage().then((storage3) => {
-        var _a, _b;
+        var _a, _b, _c;
         getElementFromForm("whitelistTime").value = storage3.whitelistTime;
         getElementFromForm("enableBlobs").checked = (_a = storage3.enableBlobs, _a !== null && _a !== void 0 ? _a : true);
         getElementFromForm("enable3D").checked = (_b = storage3.enable3D, _b !== null && _b !== void 0 ? _b : true);
+        getElementFromForm("checkIntent").checked = (_c = storage3.checkIntent, _c !== null && _c !== void 0 ? _c : true);
       });
       const optionsDiv = document.getElementById("options");
       const goToEndButton = document.getElementById("page3button");
@@ -271,7 +283,7 @@
       const strippedURL = getStrippedUrl();
       const exactURL = cleanDomain([window.location.href], true);
       storage3.blockedSites.forEach((site) => {
-        if ((!strippedURL.includes(`.${site}`) && strippedURL.includes(site) || exactURL.includes(site)) && !isWhitelistedWrapper()) {
+        if ((!strippedURL.includes(`.${site}`) && strippedURL.includes(site) || exactURL === site) && !isWhitelistedWrapper()) {
           iterWhitelist();
         }
       });

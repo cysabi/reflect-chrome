@@ -11,15 +11,15 @@
   var require_crypto = __commonJS(() => {
   });
 
-  // empty:/Users/ronald/github/reflect/reflect-chrome/node_modules/node-fetch/browser.js
+  // empty:/root/reflect-chrome/node_modules/node-fetch/browser.js
   var require_browser = __commonJS(() => {
   });
 
-  // empty:/Users/ronald/github/reflect/reflect-chrome/node_modules/util/util.js
+  // empty:/root/reflect-chrome/node_modules/util/util.js
   var require_util = __commonJS(() => {
   });
 
-  // empty:/Users/ronald/github/reflect/reflect-chrome/node_modules/string_decoder/lib/string_decoder.js
+  // empty:/root/reflect-chrome/node_modules/string_decoder/lib/string_decoder.js
   var require_string_decoder = __commonJS(() => {
   });
 
@@ -23380,9 +23380,8 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
-      } else {
-        return activeURL[1].replace("www.", "");
       }
+      return activeURL[1];
     }
   }
 
@@ -23902,6 +23901,7 @@
       customMessage: "",
       enableBlobs: true,
       enable3D: true,
+      checkIntent: true,
       blockedSites,
       isEnabled: true
     }).then(() => {
@@ -23944,7 +23944,8 @@
     getStorage().then((storage5) => {
       chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         const currentUrl = cleanDomain(tabs.map((tab) => tab.url));
-        if (storage5.blockedSites.includes(currentUrl)) {
+        const sites = storage5.blockedSites.map((site) => site.startsWith("www.") ? site : [site, "www." + site]).flat();
+        if (sites.includes(currentUrl)) {
           chrome.tabs.reload(tabs[0].id);
         }
       });
@@ -23998,7 +23999,7 @@
           port.postMessage({status: "too_short"});
           return;
         }
-        const valid = yield model.predict(intent);
+        const valid = storage5.checkIntent ? yield model.predict(intent) : true;
         if (!valid) {
           port.postMessage({status: "invalid"});
           console.log("Failed. Remaining on page.");

@@ -5,7 +5,7 @@
         "types": ["@types/chrome", "node", "@types/jquery", "@types/jqueryui"],
         "typeRoots": ["node_modules/@types"],
         "moduleResolution": "node",
-        "lib": ["es2017", "dom"],
+        "lib": ["ESNext", "dom"],
         "skipLibCheck": true,
         "outDir": "build",
     }

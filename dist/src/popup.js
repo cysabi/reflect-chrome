@@ -7,9 +7,8 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
-      } else {
-        return activeURL[1].replace("www.", "");
       }
+      return activeURL[1];
     }
   }
 
