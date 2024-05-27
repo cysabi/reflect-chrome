@@ -115,10 +115,15 @@ function reloadActive(): void {
   getStorage().then((storage) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentUrl = cleanDomain(tabs.map((tab) => tab.url))
-      const sites = storage.blockedSites.map(site => site.startsWith("www.") ? site : [site, "www." + site]).flat()
-      if (sites.includes(currentUrl)) {
-        chrome.tabs.reload(tabs[0].id)
-      }
+      storage.blockedSites.forEach((site) => {
+        let url = currentUrl
+        if (site.split('.').length === 2 && currentUrl.split('.').length === 3) {
+          url = currentUrl.split('.').slice(1).join('.')
+        }
+        if (url === site) {
+          chrome.tabs.reload(tabs[0].id)
+        }
+      })
     })
   })
 }
