@@ -26,6 +26,16 @@ const getSettingsHTMLString = () => {
         </tr>
         <tr>
             <td>
+                <h3 class="setting">check intent.</h3>
+                <p class="subtext">whether to enable checking if your intention is productive or not.</p>
+            </td>
+            <td>
+                <input class='toggle' id='checkIntent' type='checkbox'>
+                <label class='toggle-button' for='checkIntent'></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <h3 class="setting">whitelist time.</h3>
                 <p class="subtext">time allowed on a website after successful intent (minutes).</p>
             </td>
@@ -45,11 +55,13 @@ const saveSettings = () => {
   const whitelistTime: number = getElementFromForm('whitelistTime').value
   const enableBlobs: boolean = getElementFromForm('enableBlobs').checked
   const enable3D: boolean = getElementFromForm('enable3D').checked
+  const checkIntent: boolean = getElementFromForm('checkIntent').checked
 
   setStorage({
     whitelistTime: whitelistTime,
     enableBlobs: enableBlobs,
     enable3D: enable3D,
+    checkIntent: checkIntent,
   }).then(() => {
     // Update status to let user know options were saved.
     const status = document.getElementById('statusContent')
@@ -66,6 +78,7 @@ export default () => {
       getElementFromForm('whitelistTime').value = storage.whitelistTime
       getElementFromForm('enableBlobs').checked = storage.enableBlobs ?? true
       getElementFromForm('enable3D').checked = storage.enable3D ?? true
+      getElementFromForm('checkIntent').checked = storage.checkIntent ?? true
     })
 
     const optionsDiv: HTMLElement = document.getElementById('options')

@@ -59,6 +59,7 @@ function firstTimeSetup(): void {
     customMessage: '',
     enableBlobs: true,
     enable3D: true,
+    checkIntent: true,
     blockedSites: blockedSites,
     isEnabled: true,
   }).then(() => {
@@ -189,7 +190,7 @@ async function intentHandler(port: chrome.runtime.Port, msg) {
     }
 
     // send to nlp model for prediction
-    const valid: boolean = await model.predict(intent)
+    const valid: boolean = storage.checkIntent ? await model.predict(intent) : true
     if (!valid) {
       // if invalid, let content script know and early return
       port.postMessage({ status: 'invalid' })
