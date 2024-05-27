@@ -1,5 +1,14 @@
 // storage.ts provides a thin wrapper around the chrome storage api to make it easier to read/write from it
 // you can also find helper functions that read/write to chrome storage
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { addMinutes } from './util';
 // helper function to retrive chrome storage object
 // usage:
@@ -8,14 +17,16 @@ import { addMinutes } from './util';
 //     ...
 // })
 export function getStorage() {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(null, (storage) => {
-            if (chrome.runtime.lastError !== undefined) {
-                reject(chrome.runtime.lastError);
-            }
-            else {
-                resolve(storage);
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get(null, (storage) => {
+                if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                }
+                else {
+                    resolve(storage);
+                }
+            });
         });
     });
 }
@@ -27,8 +38,8 @@ export function getStorage() {
 // })
 export function setStorage(key) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.set(key, () => {
-            if (chrome.runtime.lastError !== undefined) {
+        chrome.storage.local.set(key, () => {
+            if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
             }
             else {

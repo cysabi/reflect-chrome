@@ -23386,21 +23386,50 @@
   }
 
   // build/storage.js
-  function getStorage() {
-    return new Promise((resolve, reject) => {
-      chrome.storage.sync.get(null, (storage5) => {
-        if (chrome.runtime.lastError !== void 0) {
-          reject(chrome.runtime.lastError);
-        } else {
-          resolve(storage5);
+  var __awaiter4 = function(thisArg, _arguments, P2, generator) {
+    function adopt(value) {
+      return value instanceof P2 ? value : new P2(function(resolve) {
+        resolve(value);
+      });
+    }
+    return new (P2 || (P2 = Promise))(function(resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e2) {
+          reject(e2);
         }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e2) {
+          reject(e2);
+        }
+      }
+      function step(result) {
+        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+  function getStorage() {
+    return __awaiter4(this, void 0, void 0, function* () {
+      return new Promise((resolve, reject) => {
+        chrome.storage.local.get(null, (storage4) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve(storage4);
+          }
+        });
       });
     });
   }
   function setStorage(key) {
     return new Promise((resolve, reject) => {
-      chrome.storage.sync.set(key, () => {
-        if (chrome.runtime.lastError !== void 0) {
+      chrome.storage.local.set(key, () => {
+        if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else {
           resolve();
@@ -23409,10 +23438,10 @@
     });
   }
   function addToBlocked(url, callback) {
-    getStorage().then((storage5) => {
-      if (!storage5.blockedSites.includes(url)) {
-        storage5.blockedSites.push(url);
-        setStorage({blockedSites: storage5.blockedSites}).then(() => {
+    getStorage().then((storage4) => {
+      if (!storage4.blockedSites.includes(url)) {
+        storage4.blockedSites.push(url);
+        setStorage({blockedSites: storage4.blockedSites}).then(() => {
           console.log(`${url} added to blocked sites`);
           callback ? callback() : () => {
           };
@@ -23421,8 +23450,8 @@
     });
   }
   function removeFromBlocked(url) {
-    getStorage().then((storage5) => {
-      let blockedSites = storage5.blockedSites;
+    getStorage().then((storage4) => {
+      let blockedSites = storage4.blockedSites;
       blockedSites = blockedSites.filter((e2) => e2 !== url);
       setStorage({blockedSites}).then(() => {
         console.log(`removed ${url} from blocked sites`);
@@ -23430,8 +23459,8 @@
     });
   }
   function addToWhitelist(url, minutes) {
-    getStorage().then((storage5) => {
-      let whitelistedSites = storage5.whitelistedSites;
+    getStorage().then((storage4) => {
+      let whitelistedSites = storage4.whitelistedSites;
       let expiry = addMinutes(new Date(), minutes);
       whitelistedSites[url] = expiry.toJSON();
       setStorage({whitelistedSites}).then(() => {
@@ -23441,7 +23470,7 @@
   }
 
   // build/nn.js
-  var __awaiter4 = function(thisArg, _arguments, P2, generator) {
+  var __awaiter5 = function(thisArg, _arguments, P2, generator) {
     function adopt(value) {
       return value instanceof P2 ? value : new P2(function(resolve) {
         resolve(value);
@@ -23637,7 +23666,7 @@
       this.json_url = chrome.runtime.getURL("res/models/" + modelName + "/tokenizer.json");
     }
     load_from_json() {
-      return __awaiter4(this, void 0, void 0, function* () {
+      return __awaiter5(this, void 0, void 0, function* () {
         return fetch(this.json_url).then((response) => response.json()).then((jsonString) => JSON.parse(jsonString)).then((json2) => json2.config.word_index).then((wordMappingString) => {
           this.wordMap = JSON.parse(wordMappingString);
         });
@@ -23698,22 +23727,22 @@
       this.loadModel(this.modelName);
     }
     predict(intent) {
-      return __awaiter4(this, void 0, void 0, function* () {
+      return __awaiter5(this, void 0, void 0, function* () {
         const tokens = this.tokenizer.tokenize(intent);
         const inputTensor = Bn([tokens]);
         const predictionTensor = this.model.predict(inputTensor);
-        return getStorage().then((storage5) => {
+        return getStorage().then((storage4) => {
           return predictionTensor.data().then((predictions) => {
             var _a2;
             tn(inputTensor);
             const confidence = predictions[0];
-            return confidence > (_a2 = storage5.predictionThreshold, _a2 !== null && _a2 !== void 0 ? _a2 : 0.5);
+            return confidence > (_a2 = storage4.predictionThreshold, _a2 !== null && _a2 !== void 0 ? _a2 : 0.5);
           });
         });
       });
     }
     loadModel(modelName) {
-      return __awaiter4(this, void 0, void 0, function* () {
+      return __awaiter5(this, void 0, void 0, function* () {
         console.log("Loading model...");
         const startTime = performance.now();
         const modelDir = chrome.runtime.getURL("res/models/" + modelName + "/model.json");
@@ -23793,9 +23822,9 @@
         cleanupBadge();
         return;
       }
-      getStorage().then((storage5) => {
-        if (storage5.whitelistedSites.hasOwnProperty(domain)) {
-          const expiry = new Date(storage5.whitelistedSites[domain]);
+      getStorage().then((storage4) => {
+        if (storage4.whitelistedSites.hasOwnProperty(domain)) {
+          const expiry = new Date(storage4.whitelistedSites[domain]);
           const currentDate = new Date();
           const timeDifference = expiry.getTime() - currentDate.getTime();
           setBadge(timeDifference);
@@ -23823,21 +23852,8 @@
     }
   }
 
-  // build/commands.js
-  function listenForCommand(onCallback, offCallback) {
-    chrome.commands.onCommand.addListener((command) => {
-      getStorage().then((storage5) => {
-        if (storage5.isEnabled) {
-          offCallback();
-        } else {
-          onCallback();
-        }
-      });
-    });
-  }
-
   // build/background.js
-  var __awaiter5 = function(thisArg, _arguments, P2, generator) {
+  var __awaiter6 = function(thisArg, _arguments, P2, generator) {
     function adopt(value) {
       return value instanceof P2 ? value : new P2(function(resolve) {
         resolve(value);
@@ -23912,11 +23928,11 @@
     });
   }
   chrome.runtime.onStartup.addListener(() => {
-    getStorage().then((storage5) => {
+    getStorage().then((storage4) => {
       let icon = "res/icon.png";
-      if (storage5.isEnabled) {
+      if (storage4.isEnabled) {
         icon = "res/on.png";
-      } else if (!storage5.isEnabled) {
+      } else if (!storage4.isEnabled) {
         icon = "res/off.png";
       }
       chrome.browserAction.setIcon({path: {"16": icon}});
@@ -23941,13 +23957,18 @@
     });
   }
   function reloadActive() {
-    getStorage().then((storage5) => {
+    getStorage().then((storage4) => {
       chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         const currentUrl = cleanDomain(tabs.map((tab) => tab.url));
-        const sites = storage5.blockedSites.map((site) => site.startsWith("www.") ? site : [site, "www." + site]).flat();
-        if (sites.includes(currentUrl)) {
-          chrome.tabs.reload(tabs[0].id);
-        }
+        storage4.blockedSites.forEach((site) => {
+          let url = currentUrl;
+          if (site.split(".").length === 2 && currentUrl.split(".").length === 3) {
+            url = currentUrl.split(".").slice(1).join(".");
+          }
+          if (url === site) {
+            chrome.tabs.reload(tabs[0].id);
+          }
+        });
       });
     });
   }
@@ -23989,17 +24010,17 @@
     }
   });
   function intentHandler(port, msg) {
-    return __awaiter5(this, void 0, void 0, function* () {
+    return __awaiter6(this, void 0, void 0, function* () {
       const intent = msg.intent;
-      getStorage().then((storage5) => __awaiter5(this, void 0, void 0, function* () {
+      getStorage().then((storage4) => __awaiter6(this, void 0, void 0, function* () {
         var _a2;
-        const WHITELIST_PERIOD = storage5.whitelistTime;
+        const WHITELIST_PERIOD = storage4.whitelistTime;
         const words = intent.split(" ");
-        if (words.length <= (_a2 = storage5.minIntentLength, _a2 !== null && _a2 !== void 0 ? _a2 : 3)) {
+        if (words.length <= (_a2 = storage4.minIntentLength, _a2 !== null && _a2 !== void 0 ? _a2 : 3)) {
           port.postMessage({status: "too_short"});
           return;
         }
-        const valid = storage5.checkIntent ? yield model.predict(intent) : true;
+        const valid = storage4.checkIntent ? yield model.predict(intent) : true;
         if (!valid) {
           port.postMessage({status: "invalid"});
           console.log("Failed. Remaining on page.");
@@ -24015,7 +24036,6 @@
       }));
     });
   }
-  listenForCommand(turnFilteringOn, turnFilteringOff);
   function toggleStateHandler(port, msg) {
     const on = msg.state;
     if (on) {

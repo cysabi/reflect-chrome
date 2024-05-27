@@ -10,10 +10,10 @@ import { addMinutes, cleanDomain } from './util'
 // getStorage(null).then(storage => {
 //     ...
 // })
-export function getStorage(): Promise<Storage> {
+export async function getStorage(): Promise<Storage> {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(null, (storage) => {
-      if (chrome.runtime.lastError !== undefined) {
+    chrome.storage.local.get(null, (storage) => {
+      if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError)
       } else {
         resolve(storage)
@@ -30,8 +30,8 @@ export function getStorage(): Promise<Storage> {
 // })
 export function setStorage(key: Storage): Promise<void> {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.set(key, () => {
-      if (chrome.runtime.lastError !== undefined) {
+    chrome.storage.local.set(key, () => {
+      if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError)
       } else {
         resolve()
