@@ -115,7 +115,8 @@ function reloadActive(): void {
   getStorage().then((storage) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentUrl = cleanDomain(tabs.map((tab) => tab.url))
-      if (storage.blockedSites.includes(currentUrl)) {
+      const sites = storage.blockedSites.map(site => site.startsWith("www.") ? site : [site, "www." + site]).flat()
+      if (sites.includes(currentUrl)) {
         chrome.tabs.reload(tabs[0].id)
       }
     })
