@@ -41,13 +41,11 @@ function checkIfBlocked(): void {
 
     // match current url against stored blocklist
     storage.blockedSites.forEach((site: string) => {
-      // if google.com is blocked, meet.google.com includes .google.com --> meet.google.com is not blocked
-      // conversely if meet.google.com is blocked, google.com does not include meet.google.com --> google.com is not blocked
-      if (
-        ((!strippedURL.includes(`.${site}`) && strippedURL.includes(site)) || exactURL === site) &&
-        !isWhitelistedWrapper()
-      ) {
-        // found a match, check if currently on whitelist
+      let url = strippedURL
+      if (site.split('.').length === 2 && strippedURL.split('.').length === 3) {
+        url = strippedURL.split('.').slice(1).join('.')
+      }
+      if (url === site && !isWhitelistedWrapper()) {
         iterWhitelist()
       }
     })

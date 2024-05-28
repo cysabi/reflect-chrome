@@ -7,8 +7,9 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
+      } else {
+        return activeURL[1];
       }
-      return activeURL[1];
     }
   }
   function getElementFromForm(id) {
@@ -16,49 +17,20 @@
   }
 
   // build/storage.js
-  var __awaiter = function(thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P ? value : new P(function(resolve) {
-        resolve(value);
-      });
-    }
-    return new (P || (P = Promise))(function(resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
   function getStorage() {
-    return __awaiter(this, void 0, void 0, function* () {
-      return new Promise((resolve, reject) => {
-        chrome.storage.local.get(null, (storage2) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(storage2);
-          }
-        });
+    return new Promise((resolve, reject) => {
+      chrome.storage.sync.get(null, (storage2) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(storage2);
+        }
       });
     });
   }
   function setStorage(key) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set(key, () => {
+      chrome.storage.sync.set(key, () => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else {
@@ -96,14 +68,13 @@
       display.innerHTML = sliderToValue(slider);
     };
     getStorage().then((storage2) => {
-      var _a, _b, _c, _d;
+      var _a, _b, _c;
       getElementFromForm("whitelistTime").value = storage2.whitelistTime;
       getElementFromForm("numIntentEntries").value = storage2.numIntentEntries;
       getElementFromForm("minIntentLength").value = (_a = storage2.minIntentLength, _a !== null && _a !== void 0 ? _a : 3);
       getElementFromForm("customMessage").value = storage2.customMessage || "";
       getElementFromForm("enableBlobs").checked = (_b = storage2.enableBlobs, _b !== null && _b !== void 0 ? _b : true);
       getElementFromForm("enable3D").checked = (_c = storage2.enable3D, _c !== null && _c !== void 0 ? _c : true);
-      getElementFromForm("checkIntent").checked = (_d = storage2.checkIntent, _d !== null && _d !== void 0 ? _d : true);
       getElementFromForm("thresholdSlider").value = storage2.predictionThreshold || 0.5;
       display.innerHTML = sliderToValue(slider);
     });
@@ -116,7 +87,6 @@
     const customMessage = getElementFromForm("customMessage").value;
     const enableBlobs = getElementFromForm("enableBlobs").checked;
     const enable3D = getElementFromForm("enable3D").checked;
-    const checkIntent = getElementFromForm("checkIntent").checked;
     const predictionThreshold = getElementFromForm("thresholdSlider").value;
     setStorage({
       numIntentEntries,
@@ -124,7 +94,6 @@
       customMessage,
       enableBlobs,
       enable3D,
-      checkIntent,
       predictionThreshold,
       minIntentLength
     }).then(() => {

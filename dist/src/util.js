@@ -15,7 +15,9 @@ export function cleanDomain(urls, exact = false) {
         if (activeURL == null) {
             return '';
         }
-        return activeURL[1];
+        else {
+            return activeURL[1];
+        }
     }
 }
 export function insertAfter(newNode, existingNode) {

@@ -25,16 +25,6 @@ const getSettingsHTMLString = () => {
         </tr>
         <tr>
             <td>
-                <h3 class="setting">check intent.</h3>
-                <p class="subtext">whether to enable checking if your intention is productive or not.</p>
-            </td>
-            <td>
-                <input class='toggle' id='checkIntent' type='checkbox'>
-                <label class='toggle-button' for='checkIntent'></label>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <h3 class="setting">whitelist time.</h3>
                 <p class="subtext">time allowed on a website after successful intent (minutes).</p>
             </td>
@@ -53,12 +43,10 @@ const saveSettings = () => {
     const whitelistTime = getElementFromForm('whitelistTime').value;
     const enableBlobs = getElementFromForm('enableBlobs').checked;
     const enable3D = getElementFromForm('enable3D').checked;
-    const checkIntent = getElementFromForm('checkIntent').checked;
     setStorage({
         whitelistTime: whitelistTime,
         enableBlobs: enableBlobs,
         enable3D: enable3D,
-        checkIntent: checkIntent,
     }).then(() => {
         // Update status to let user know options were saved.
         const status = document.getElementById('statusContent');
@@ -71,11 +59,10 @@ const saveSettings = () => {
 export default () => {
     document.addEventListener('DOMContentLoaded', () => {
         getStorage().then((storage) => {
-            var _a, _b, _c;
+            var _a, _b;
             getElementFromForm('whitelistTime').value = storage.whitelistTime;
             getElementFromForm('enableBlobs').checked = (_a = storage.enableBlobs, (_a !== null && _a !== void 0 ? _a : true));
             getElementFromForm('enable3D').checked = (_b = storage.enable3D, (_b !== null && _b !== void 0 ? _b : true));
-            getElementFromForm('checkIntent').checked = (_c = storage.checkIntent, (_c !== null && _c !== void 0 ? _c : true));
         });
         const optionsDiv = document.getElementById('options');
         // change last button to say it will skip rather than setting settings

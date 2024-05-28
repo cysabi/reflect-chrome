@@ -23380,55 +23380,27 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
+      } else {
+        return activeURL[1];
       }
-      return activeURL[1];
     }
   }
 
   // build/storage.js
-  var __awaiter4 = function(thisArg, _arguments, P2, generator) {
-    function adopt(value) {
-      return value instanceof P2 ? value : new P2(function(resolve) {
-        resolve(value);
-      });
-    }
-    return new (P2 || (P2 = Promise))(function(resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e2) {
-          reject(e2);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e2) {
-          reject(e2);
-        }
-      }
-      function step(result) {
-        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
   function getStorage() {
-    return __awaiter4(this, void 0, void 0, function* () {
-      return new Promise((resolve, reject) => {
-        chrome.storage.local.get(null, (storage4) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(storage4);
-          }
-        });
+    return new Promise((resolve, reject) => {
+      chrome.storage.sync.get(null, (storage4) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(storage4);
+        }
       });
     });
   }
   function setStorage(key) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set(key, () => {
+      chrome.storage.sync.set(key, () => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else {
@@ -23470,7 +23442,7 @@
   }
 
   // build/nn.js
-  var __awaiter5 = function(thisArg, _arguments, P2, generator) {
+  var __awaiter4 = function(thisArg, _arguments, P2, generator) {
     function adopt(value) {
       return value instanceof P2 ? value : new P2(function(resolve) {
         resolve(value);
@@ -23666,7 +23638,7 @@
       this.json_url = chrome.runtime.getURL("res/models/" + modelName + "/tokenizer.json");
     }
     load_from_json() {
-      return __awaiter5(this, void 0, void 0, function* () {
+      return __awaiter4(this, void 0, void 0, function* () {
         return fetch(this.json_url).then((response) => response.json()).then((jsonString) => JSON.parse(jsonString)).then((json2) => json2.config.word_index).then((wordMappingString) => {
           this.wordMap = JSON.parse(wordMappingString);
         });
@@ -23727,7 +23699,7 @@
       this.loadModel(this.modelName);
     }
     predict(intent) {
-      return __awaiter5(this, void 0, void 0, function* () {
+      return __awaiter4(this, void 0, void 0, function* () {
         const tokens = this.tokenizer.tokenize(intent);
         const inputTensor = Bn([tokens]);
         const predictionTensor = this.model.predict(inputTensor);
@@ -23742,7 +23714,7 @@
       });
     }
     loadModel(modelName) {
-      return __awaiter5(this, void 0, void 0, function* () {
+      return __awaiter4(this, void 0, void 0, function* () {
         console.log("Loading model...");
         const startTime = performance.now();
         const modelDir = chrome.runtime.getURL("res/models/" + modelName + "/model.json");
@@ -23853,7 +23825,7 @@
   }
 
   // build/background.js
-  var __awaiter6 = function(thisArg, _arguments, P2, generator) {
+  var __awaiter5 = function(thisArg, _arguments, P2, generator) {
     function adopt(value) {
       return value instanceof P2 ? value : new P2(function(resolve) {
         resolve(value);
@@ -23917,7 +23889,6 @@
       customMessage: "",
       enableBlobs: true,
       enable3D: true,
-      checkIntent: true,
       blockedSites,
       isEnabled: true
     }).then(() => {
@@ -24004,9 +23975,9 @@
     }
   });
   function intentHandler(port, msg) {
-    return __awaiter6(this, void 0, void 0, function* () {
+    return __awaiter5(this, void 0, void 0, function* () {
       const intent = msg.intent;
-      getStorage().then((storage4) => __awaiter6(this, void 0, void 0, function* () {
+      getStorage().then((storage4) => __awaiter5(this, void 0, void 0, function* () {
         var _a2;
         const WHITELIST_PERIOD = storage4.whitelistTime;
         const words = intent.split(" ");
@@ -24014,7 +23985,7 @@
           port.postMessage({status: "too_short"});
           return;
         }
-        const valid = storage4.checkIntent ? yield model.predict(intent) : true;
+        const valid = yield model.predict(intent);
         if (!valid) {
           port.postMessage({status: "invalid"});
           console.log("Failed. Remaining on page.");

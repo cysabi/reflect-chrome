@@ -104,8 +104,9 @@
       const activeURL = urls[0].match(exact ? /^[\w]+:\/{2}([^#?]+)/ : /^[\w]+:\/{2}([\w\.:-]+)/);
       if (activeURL == null) {
         return "";
+      } else {
+        return activeURL[1];
       }
-      return activeURL[1];
     }
   }
   function insertAfter(newNode, existingNode) {
@@ -121,49 +122,20 @@
   }
 
   // build/storage.js
-  var __awaiter = function(thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P ? value : new P(function(resolve) {
-        resolve(value);
-      });
-    }
-    return new (P || (P = Promise))(function(resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
   function getStorage() {
-    return __awaiter(this, void 0, void 0, function* () {
-      return new Promise((resolve, reject) => {
-        chrome.storage.local.get(null, (storage3) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(storage3);
-          }
-        });
+    return new Promise((resolve, reject) => {
+      chrome.storage.sync.get(null, (storage3) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(storage3);
+        }
       });
     });
   }
   function setStorage(key) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set(key, () => {
+      chrome.storage.sync.set(key, () => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else {
@@ -223,16 +195,6 @@
         </tr>
         <tr>
             <td>
-                <h3 class="setting">check intent.</h3>
-                <p class="subtext">whether to enable checking if your intention is productive or not.</p>
-            </td>
-            <td>
-                <input class='toggle' id='checkIntent' type='checkbox'>
-                <label class='toggle-button' for='checkIntent'></label>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <h3 class="setting">whitelist time.</h3>
                 <p class="subtext">time allowed on a website after successful intent (minutes).</p>
             </td>
@@ -251,12 +213,10 @@
     const whitelistTime = getElementFromForm("whitelistTime").value;
     const enableBlobs = getElementFromForm("enableBlobs").checked;
     const enable3D = getElementFromForm("enable3D").checked;
-    const checkIntent = getElementFromForm("checkIntent").checked;
     setStorage({
       whitelistTime,
       enableBlobs,
-      enable3D,
-      checkIntent
+      enable3D
     }).then(() => {
       const status = document.getElementById("statusContent");
       status.textContent = "options saved.";
@@ -268,11 +228,10 @@
   var onboarding_options_default = () => {
     document.addEventListener("DOMContentLoaded", () => {
       getStorage().then((storage3) => {
-        var _a, _b, _c;
+        var _a, _b;
         getElementFromForm("whitelistTime").value = storage3.whitelistTime;
         getElementFromForm("enableBlobs").checked = (_a = storage3.enableBlobs, _a !== null && _a !== void 0 ? _a : true);
         getElementFromForm("enable3D").checked = (_b = storage3.enable3D, _b !== null && _b !== void 0 ? _b : true);
-        getElementFromForm("checkIntent").checked = (_c = storage3.checkIntent, _c !== null && _c !== void 0 ? _c : true);
       });
       const optionsDiv = document.getElementById("options");
       const goToEndButton = document.getElementById("page3button");
@@ -310,6 +269,7 @@
         return;
       }
       const strippedURL = getStrippedUrl();
+      const exactURL = cleanDomain([window.location.href], true);
       storage3.blockedSites.forEach((site) => {
         let url = strippedURL;
         if (site.split(".").length === 2 && strippedURL.split(".").length === 3) {

@@ -19,8 +19,7 @@ export function cleanDomain(urls: (string | undefined)[], exact = false): string
     if (activeURL == null) {
       return ''
     } else {
-      // strip www.
-      return activeURL[1].replace('www.', '')
+      return activeURL[1]
     }
   }
 }
