@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     getElementFromForm('customMessage').value = storage.customMessage || ''
     getElementFromForm('enableBlobs').checked = storage.enableBlobs ?? true
     getElementFromForm('enable3D').checked = storage.enable3D ?? true
-    getElementFromForm('checkIntent').checked = storage.checkIntent ?? true
     getElementFromForm('thresholdSlider').value = storage.predictionThreshold || 0.5
     display.innerHTML = sliderToValue(slider)
   })
@@ -49,7 +48,6 @@ function saveCurrentOptions(): void {
   const customMessage: string = getElementFromForm('customMessage').value
   const enableBlobs: boolean = getElementFromForm('enableBlobs').checked
   const enable3D: boolean = getElementFromForm('enable3D').checked
-  const checkIntent: boolean = getElementFromForm('checkIntent').checked
   const predictionThreshold: number = getElementFromForm('thresholdSlider').value
 
   setStorage({
@@ -58,7 +56,6 @@ function saveCurrentOptions(): void {
     customMessage: customMessage,
     enableBlobs: enableBlobs,
     enable3D: enable3D,
-    checkIntent: checkIntent,
     predictionThreshold: predictionThreshold,
     minIntentLength: minIntentLength,
   }).then(() => {

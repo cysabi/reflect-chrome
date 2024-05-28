@@ -4,6 +4,7 @@ import { getStorage, setStorage, addToBlocked, addToWhitelist, removeFromBlocked
 import setupContextMenus from './context_menus'
 import { Intent } from './types'
 import { setBadgeUpdate, cleanupBadge } from './badge'
+import { listenForCommand } from './commands'
 
 // On install script
 chrome.runtime.onInstalled.addListener((details) => {
@@ -58,7 +59,6 @@ function firstTimeSetup(): void {
     customMessage: '',
     enableBlobs: true,
     enable3D: true,
-    checkIntent: true,
     blockedSites: blockedSites,
     isEnabled: true,
   }).then(() => {
@@ -114,15 +114,9 @@ function reloadActive(): void {
   getStorage().then((storage) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentUrl = cleanDomain(tabs.map((tab) => tab.url))
-      storage.blockedSites.forEach((site) => {
-        let url = currentUrl
-        if (site.split('.').length === 2 && currentUrl.split('.').length === 3) {
-          url = currentUrl.split('.').slice(1).join('.')
-        }
-        if (url === site) {
-          chrome.tabs.reload(tabs[0].id)
-        }
-      })
+      if (storage.blockedSites.includes(currentUrl)) {
+        chrome.tabs.reload(tabs[0].id)
+      }
     })
   })
 }
@@ -195,7 +189,7 @@ async function intentHandler(port: chrome.runtime.Port, msg) {
     }
 
     // send to nlp model for prediction
-    const valid: boolean = storage.checkIntent ? await model.predict(intent) : true
+    const valid: boolean = await model.predict(intent)
     if (!valid) {
       // if invalid, let content script know and early return
       port.postMessage({ status: 'invalid' })
@@ -215,6 +209,9 @@ async function intentHandler(port: chrome.runtime.Port, msg) {
     console.log(`Success! Redirecting`)
   })
 }
+
+// handle keyboard shortcut
+listenForCommand(turnFilteringOn, turnFilteringOff)
 
 // handle user toggling extension on/off
 function toggleStateHandler(port: chrome.runtime.Port, msg) {

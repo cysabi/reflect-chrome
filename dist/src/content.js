@@ -310,9 +310,12 @@
         return;
       }
       const strippedURL = getStrippedUrl();
-      const exactURL = cleanDomain([window.location.href], true);
       storage3.blockedSites.forEach((site) => {
-        if ((!strippedURL.includes(`.${site}`) && strippedURL.includes(site) || exactURL === site) && !isWhitelistedWrapper()) {
+        let url = strippedURL;
+        if (site.split(".").length === 2 && strippedURL.split(".").length === 3) {
+          url = strippedURL.split(".").slice(1).join(".");
+        }
+        if (url === site && !isWhitelistedWrapper()) {
           iterWhitelist();
         }
       });
